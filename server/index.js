@@ -8,7 +8,7 @@ dotenv.config();
 import connectDB from "./config/db.js";
 import jwt from "jsonwebtoken";
 
-import passport from "passport";
+// import passport from "passport";
 // import "./config/passport.js"; // passport config
 
 // import googleAuthRoutes from "./routes/googleAuth.routes.js";
@@ -39,7 +39,7 @@ app.use(morgan("dev"));
 app.use(express.json({ limit: "2mb" }));
 
 // Passport init
-app.use(passport.initialize());
+// app.use(passport.initialize());
 
 // app.use("/auth", googleAuthRoutes);
 
