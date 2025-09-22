@@ -1,3 +1,4 @@
+// server.js (or index.js)
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
@@ -10,8 +11,7 @@ import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import adminContentRoutes from "./routes/adminContent.routes.js";
 import publicContentRoutes from "./routes/publicContent.routes.js";
-import roadmapRoutes from "./routes/roadmap.routes.js";   // ✅ new
-// import contentRoutes from "./routes/content.routes.js";
+import roadmapRoutes from "./routes/roadmap.routes.js";  
 
 import commentRoutes from "./routes/comment.routes.js";
 import likeRoutes from "./routes/like.routes.js";
@@ -31,32 +31,33 @@ app.use(compression());
 app.use(morgan("dev"));
 app.use(express.json({ limit: "2mb" }));
 
-// app.use("/api/content", contentRoutes);
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", requireAuth, requireUser, userRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin", requireAuth, requireAdmin, adminRoutes); // secure admin route
 app.use("/api/admin/contents", adminContentRoutes);
 app.use("/api", publicContentRoutes);
-
 
 app.use("/api/comments", commentRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/activity", activityRoutes);
 app.use("/api/summary", summaryRoutes);
 
-// ✅ Roadmap Routes
 app.use("/api/roadmaps", roadmapRoutes);
+
+app.use("/api/payment", paymentRoutes);
 
 // Health Check
 app.get("/health", (_, res) => res.json({ ok: true }));
 
-
-app.use("/api/payment", paymentRoutes);
-
-// Server + DB
+// Connect DB first, then start server
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, async () => {
-  await connectDB(); 
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+
+const startServer = async () => {
+  await connectDB();
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+};
+
+startServer();
