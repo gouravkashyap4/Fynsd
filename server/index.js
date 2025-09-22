@@ -4,7 +4,10 @@ import morgan from "morgan";
 import compression from "compression";
 import dotenv from "dotenv";
 
-import connectDB from "./config/db.js";  
+dotenv.config();
+import connectDB from "./config/db.js";
+
+
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
@@ -22,7 +25,6 @@ import paymentRoutes from "./routes/payment.routes.js";
 
 import { requireAuth, requireUser, requireAdmin } from "./middleware/auth.middleware.js";
 
-dotenv.config();
 const app = express();
 
 // Middlewares
@@ -31,7 +33,7 @@ app.use(compression());
 app.use(morgan("dev"));
 app.use(express.json({ limit: "2mb" }));
 
-// app.use("/api/content", contentRoutes);
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", requireAuth, requireUser, userRoutes);
@@ -56,7 +58,12 @@ app.use("/api/payment", paymentRoutes);
 
 // Server + DB
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, async () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  await connectDB(); 
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}).catch((err) => {
+  console.error("❌ Failed to connect DB", err);
+  process.exit(1);
 });
